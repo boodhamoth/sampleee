@@ -1,0 +1,366 @@
+<div class="container-fluid pr-0">
+<div class="pt-0">
+	<div class="row">
+		<div col=sm-6>
+			<img class="pl-4 pt-4" src="..\..\assets\Images\fedex_logo.png">
+		</div>
+		<div col=sm-6>
+
+			<h2 class="text-center pt-5 pl-5" style="color: #800080">ECDC Validation Application</h2>
+		</div>
+	</div>
+</div>
+<div style="padding: 4px;height: 330px;border:solid;border-color: #800080;">
+
+<fieldset class="scheduler-border" style="width:50%;height: 315px; float:left;">
+	
+		<legend class="scheduler-border border-dark" style="color: #800080">Search</legend>
+
+
+		<table id="searchTable">
+			<thead></thead>
+			<tbody>
+				<tr>
+					<td style="font-weight: bold">Batch ID</td>
+					<td>
+						<input type="text" placeholder="Batch No" name="batchVal" [(ngModel)]="ud.batchId" [disabled]="!issourcesys()">
+					</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+
+				<td style="font-weight: bold">Source System</td>
+
+					<td>
+						<angular2-multiselect [data]="dropdownList" [disabled]="disable" [(ngModel)]="selectedItems" [settings]="dropdownSettings"
+						 (onSelect)="onItemSelect($event)" (onDeSelect)="OnItemDeSelect($event)" (onSelectAll)="onSelectAll($event)" (onDeSelectAll)="onDeSelectAll($event)"
+						 [(ngModel)]="ud.sourceSystemName" name="sourceSysVal" disabled="isbatchval()"> </angular2-multiselect>
+					</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td style="font-weight: bold">From Date:</td>
+					<td>
+						<input name="from"  type="text" id="fromdate" #fromDate (onselect)="changedate(fromDate.value)" [(ngModel)]="ud.fromDate"  name="fromdate"  [disabled]="!isbatchval() ">
+					</td>
+					<td style="font-weight: bold">&nbsp; To:</td>
+					<td>  
+						<input name="to" type="text" id="todate" [(ngModel)]="ud.toDate" name="toDateVal" [disabled]="!isbatchval() ">
+					</td>
+				</tr>
+
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td>
+						<button type="button" class="btn btn-sm py-2" (click)="Search()">Search</button>
+
+						<button type="button" class="btn btn-sm py-2" (click)="reset()" [disabled]="issourcesys() && isbatchval()">Reset</button>
+					</td>
+
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
+
+	<fieldset class="scheduler-border" style="width:50%; height: 315px;position:relative;">
+		<legend class="scheduler-border" style="color: #800080">Summary</legend>
+		<table class="table table-striped" border="1">
+			<thead>
+				<tr>
+					<th (click)="sort('id')">Batch Id
+						<span class="fa sortable" *ngIf="key =='id'" [ngClass]="{'fa-sort-asc':!reverse,'fa-sort-desc':reverse}"></span>
+					</th>
+
+					<th (click)="sort('matched')">Matched
+						<span class="fa sortable" *ngIf="key =='matched'" [ngClass]="{'fa-sort-asc':!reverse,'fa-sort-desc':reverse}"></span>
+					</th>
+
+					<th (click)="sort('unmatched')">Unmatched
+						<span class="fa sortable" *ngIf="key =='unmatched'" [ngClass]="{'fa-sort-asc':!reverse,'fa-sort-desc':reverse}"></span>
+					</th>
+				</tr>
+
+			</thead>
+			<tbody class="border border-dark">
+				<tr
+					*ngFor="let summary of serviceObj.summaryInfoLst | orderBy: key : reverse | filter:filter | paginate: { itemsPerPage: 3, currentPage: pg }; let i = index">
+					<td>{{summary.batchId}}</td>
+					<td>{{summary.matched}}</td>
+					<td>{{summary.unmatched}}</td>
+				</tr>
+			</tbody>
+			<pagination-controls (pageChange)="pd = $event" id="summaryId" previousLabel="" nextLabel=""></pagination-controls>
+		</table>
+	</fieldset>
+</div>
+
+
+<div id="searchresult" *ngIf="selectedSearch" style="padding: 4px;height: 500px;border:solid;border-color: #800080;">
+
+	<div class="row  mt-2 mr-1 ml-1">
+		<div class="col-sm-1">
+			<div class="row  mt-2 mr-1 ml-1">
+				<label style="color: #800080;font-weight: bold">All</label>
+				<input class="form-check-input" type="radio" name="search1" [(ngModel)]="filter" />
+
+			</div>
+		</div>
+		<div class="col-sm-1">
+			<div class="row  mt-2 mr-1 ml-1">
+				<label style="color: #800080;font-weight: bold">Unmatched</label>
+				<input class="form-check-input" type="radio" name="search1" value="difference" [(ngModel)]="filter">
+
+			</div>
+		</div>
+		<div class="col-sm-10"></div>
+	</div>
+
+	<div class="row pt-2 pl-3">
+		<div class="col-sm-2 border border-dark">
+			<table class="table  ">
+				<thead>
+
+					<tr>
+
+						<th (click)="sortKey('keyid')" style="color: #800080">Key
+							<span class="fa sortable" *ngIf="key1 =='keyid'" [ngClass]="{'fa-sort-asc':!reverse1,'fa-sort-desc':reverse1}"></span>
+						</th>
+
+
+					</tr>
+
+				</thead>
+				<tbody>
+					<tr
+			 *ngFor="let contact of serviceObj.keyInfoDetaisl | orderBy: key1 : reverse1 | filter:filter | paginate: { itemsPerPage: 6, currentPage: pg }; let i = index">
+	
+						<td><a href="#" (click)=test(contact.keysip)> <span
+								*ngIf="contact.matched =='difference'" class="priority-red">
+									{{contact.keysip}} </span> <span *ngIf="contact.matched=='same'"
+								class="priority-black   "> {{contact.keysip}} </span>
+						</a></td>
+	
+					</tr>
+				</tbody>
+				<pagination-controls (pageChange)="pg = $event" id="keysId" previousLabel="" nextLabel=""></pagination-controls>
+			</table>
+
+		</div>
+
+		<div class="col-sm-10 border border-dark pl-0">
+
+
+
+			<table class="table table-bordered table-fixed ">
+
+				<thead class="tabwidth pr-3">
+					<tr>
+						<th scope="col" style="color: #800080 ">Field Name</th>
+						<th scope="col" style="color: #800080">Generated data</th>
+						<th scope="col" style="color: #800080">Target data</th>
+
+					</tr>
+				</thead>
+				<div class="scrollit">
+					<tbody class="tabwidth">
+						<tr>
+							<td colspan="3" class="color_grey">
+								<a type="button" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="personDetails" role="button">
+
+									<span class="fa sortable" [ngClass]="{'fa-plus-circle text-dark':isCollapsed,'fa-minus-circle text-dark':!isCollapsed}"></span>
+								</a>Person Details
+
+
+							</td>
+
+
+						</tr>
+
+					</tbody>
+
+					<tbody id="personDetails" [ngClass]="{'myCollapse':isCollapsed,'myCollapse.in':!isCollapsed}">
+
+
+						<tr *ngFor="let person of persons ; let i = index" class="tabwidth">
+							 <td style="font-weight:bold">{{person.fieldName}}</td>
+                             <td>{{person.generatedData}}</td>
+							 <td>{{person.targetedData}}</td>
+                        </tr>
+
+                 	</tbody>
+
+
+					<tbody class="tabwidth">
+						<tr>
+
+							<td colspan="3" class="color_grey">
+
+								<a type="button" (click)="isCollapsedAdd
+								 = !isCollapsedAdd" [attr.aria-expanded]="!isCollapsedAdd" aria-controls="addressDetails" role="button">
+
+									<span class="fa sortable" [ngClass]="{'fa-plus-circle
+								 text-dark':isCollapsedAdd,'fa-minus-circle text-dark':!isCollapsedAdd}"></span>
+
+								</a>
+
+								Address Details
+
+							</td>
+
+
+
+						</tr>
+
+					</tbody>
+
+					<tbody id="addressDetails" [ngClass]="{'myCollapse':isCollapsedAdd,'myCollapse.in':!isCollapsedAdd}">
+
+						<tr *ngFor="let addr of address ; let i = index" class="tabwidth">
+
+							<td style="font-weight:bold">{{addr.fieldName}}</td>
+							<td>{{addr.generatedData}}</td>
+							<td>{{addr.targetedData}}</td>
+
+                        </tr>
+
+                	</tbody>
+
+
+					<tbody class="tabwidth">
+						<tr>
+
+							<td colspan="3" class="color_grey">
+
+								<a type="button" (click)="isCollapsedTele
+						 = !isCollapsedTele" [attr.aria-expanded]="!isCollapsedTele" aria-controls="teledetails" role="button">
+
+									<span class="fa sortable" [ngClass]="{'fa-plus-circle
+						 text-dark':isCollapsedTele,'fa-minus-circle text-dark':!isCollapsedTele}"></span>
+
+								</a>
+
+								Tele Communication
+
+							</td>
+
+                       </tr>
+
+
+					</tbody>
+					<tbody id="teledetails" [ngClass]="{'myCollapse':isCollapsedTele,'myCollapse.in':!isCollapsedTele}">
+
+						<tr *ngFor="let telecom of telecommunication ; let i = index" class="tabwidth">
+
+
+							<td style="font-weight:bold">{{telecom.fieldName}}</td>
+                            <td>{{telecom.generatedData}}</td>
+                            <td>{{telecom.targetedData}}</td>
+
+						</tr>
+
+                   </tbody>
+
+					<tbody class="tabwidth">
+						<tr>
+
+							<td colspan="3" class="color_grey">
+
+								<a type="button" (click)="isCollapsedElect
+									 = !isCollapsedElect" [attr.aria-expanded]="!isCollapsedElect" aria-controls="eleccommDetails" role="button">
+
+									<span class="fa sortable" [ngClass]="{'fa-plus-circle
+									 text-dark':isCollapsedElect,'fa-minus-circle text-dark':!isCollapsedElect}"></span>
+
+								</a>
+
+								Electronic Communication
+
+							</td>
+
+                        </tr>
+
+
+					</tbody>
+
+					<tbody id="eleccommDetails" [ngClass]="{'myCollapse':isCollapsedElect,'myCollapse.in':!isCollapsedElect}">
+
+						<tr *ngFor="let elecom of elecommunication ; let i = index" class="tabwidth">
+
+
+							<td style="font-weight:bold">{{elecom.fieldName}}</td>
+                            <td>{{elecom.generatedData}}</td>
+                            <td>{{elecom.targetedData}}</td>
+
+						</tr>
+
+
+
+					</tbody>
+
+
+					<tbody class="tabwidth">
+						<tr>
+
+							<td colspan="3" class="color_grey">
+
+								<a type="button" (click)="isCollapsedSocio
+						 = !isCollapsedSocio" [attr.aria-expanded]="!isCollapsedSocio" aria-controls="socialmediadetails" role="button">
+
+									<span class="fa sortable" [ngClass]="{'fa-plus-circle
+						 text-dark':isCollapsedSocio,'fa-minus-circle text-dark':!isCollapsedSocio}"></span>
+
+								</a>
+
+								Social Media
+
+							</td>
+
+
+
+						</tr>
+
+					</tbody>
+					<tbody id="socialmediadetails" [ngClass]="{'myCollapse':isCollapsedSocio,'myCollapse.in':!isCollapsedSocio}">
+
+						<tr *ngFor="let socmedia of socialmedia ; let i = index" class="tabwidth">
+								<td style="font-weight:bold">{{socmedia.fieldName}}</td>
+                                <td>{{socmedia.generatedData}}</td>
+	                            <td>{{socmedia.targetedData}}</td>
+
+						</tr>
+
+
+
+					</tbody>
+
+				</div>
+
+			</table>
+
+		</div>
+
+	</div>
+</div>
+</div>
